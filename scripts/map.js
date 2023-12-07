@@ -4,7 +4,8 @@ class Map {
         backgroundImage,
         borders,
         width,
-        height
+        height,
+        playerStartingPosition
     }) {
 
         this.backgroundImage = new Image();
@@ -16,8 +17,10 @@ class Map {
             left: borders.left,
             right: borders.right,
             bottom: borders.bottom,
-        }
-    };
+        };
+        this.playerStartingPosition = playerStartingPosition;
+      
+    }
 
     draw(ctx) {
         // Draw the map using this.backgroundImage

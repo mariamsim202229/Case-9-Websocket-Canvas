@@ -1,15 +1,75 @@
 import Player from "./player.js";
 import Map from "./map.js";
-
 //1. get element of canvas
-const canvasEl = document.querySelector("#canvas");
-
+const canvas = document.querySelector("canvas");
 //2. get context of canvas
-const ctx = canvasEl.getContext("2d")
-
+const ctx = canvas.getContext("2d");
 //canvas dimensions 
-const CANVAS_WIDTH = canvasEl.getBoundingClientRect().width;
-const CANVAS_HEIGHT = canvasEl.getBoundingClientRect().height;
+const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
+const CANVAS_HEIGHT = canvas.getBoundingClientRect().height;
+// DOM elements
+// ----------------------------------------------
+const messageForm = document.querySelector("#messageForm");
+const message = document.querySelector("#message");
+const chatHistory = document.querySelector("#chatHistory");
+const user = document.querySelector("#user");
+const setUser = document.querySelector("#setUser");
+
+import { MyCanvas } from './MyCanvas.js';
+
+const myCanvas = new MyCanvas(canvas, ctx);
+
+// skapa en websocket i klienten
+const websocket = new WebSocket("ws://localhost:8082");
+
+// objektet som skickas mellan klient och server
+let obj = { type: "", user: "", message: "" };
+
+
+// event listeners
+// ----------------------------------------------
+messageForm.addEventListener("submit", sendMessage);
+websocket.addEventListener("message", receiveMessage);
+setUser.addEventListener("click", confirmSetUser);
+
+// event handlers
+// ----------------------------------------------
+function sendMessage(event) {
+    event.preventDefault();
+    console.log("Skicka meddelandet med ws - websocket");
+
+    // chatt meddelande - property type="chat"
+    obj.type = "chat";
+    obj.user = user.value;
+    obj.message = message.value;
+
+    websocket.send(JSON.stringify(obj));
+    renderMessage(obj, false);
+    message.value = "";
+
+    // skicka till slut nytt websocket meddelande
+    websocket.send(JSON.stringify(obj));
+}
+
+function receiveMessage(event) {
+    console.log("event", event);
+
+    // omvandla event.data till JavaScript objekt
+    const obj = JSON.parse(event.data);
+    console.log("obj", obj);
+
+    // olika typer av objekt: type="chat" eller type="canvas"
+    // hantera med switch
+    switch (obj.type) {
+        case "chat":
+            renderMessage(obj);
+            break;
+        case "canvas":
+            console.log("params:", obj.params);
+            myCanvas.writeText(obj.message, 50, 50);
+            break;
+    }
+}
 
 const KEYS = {
     arrowUp: { isPressed: false },
@@ -33,51 +93,33 @@ const winterMap = new Map({
     },
     width: CANVAS_WIDTH,
     height: CANVAS_HEIGHT,
-    player1StartingPosition: { x: 100, y: 200 },
-    player2StartingPosition: { x: 200, y: 400 },
+    playerStartingPosition: { x: 100, y: 200 },
 }
 );
 
 let currentMap = winterMap;
 
-const player1 = new Player(40, 60, "black");
-const player2 = new Player(40, 60, "hotpink");
+let player;
 
-function handleInput(keys) {
+function confirmSetUser() {
+    const name = user.value;
+    // kontrollera att det finns ett namn
+    if (name.length > 2) {
+        setUser.classList = "hidden";
 
-    //Mariam borders
+        user.setAttribute("disabled", "disabled");
+        messageForm.classList = "";
+        chatHistory.classList = "";
 
-    // const borders = map.borders;
+        // Create Player 1
+        player = new Player(name, currentMap.playerStartingPosition.x,
+            currentMap.playerStartingPosition.y,
+            "transparent",
+            "./images/punk_guy_green.png")
 
-
-    // player 1
-    if (keys.arrowUp.isPressed && player1.y > 0) {
-        player1.move(0, -3);
-    }
-    if (keys.arrowDown.isPressed && (player1.y + player1.height) < CANVAS_HEIGHT) {
-        player1.move(0, 3);
-    }
-    if (keys.arrowLeft.isPressed && player1.x > 0) {
-        player1.move(-3, 0);
-    }
-    if (keys.arrowRight.isPressed && (player1.x + player1.width) < CANVAS_WIDTH) {
-        player1.move(3, 0);
-    }
-    // player 2
-    if (keys.a.isPressed && player2.y > 0) {
-        player2.move(0, -3);
-    }
-    if (keys.b.isPressed && (player2.y + player2.height) < CANVAS_HEIGHT) {
-        player2.move(0, 3);
-    }
-    if (keys.c.isPressed && player2.x > 0) {
-        player2.move(-3, 0);
-    }
-    if (keys.d.isPressed && (player2.x + player2.width) < CANVAS_WIDTH) {
-        player2.move(3, 0);
+        gameLoop();
     }
 }
-
 function gameLoop() {
     // Clear canvas 
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -85,13 +127,72 @@ function gameLoop() {
     // ctx.drawImage(mapBg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     currentMap.draw(ctx);
     // Do movements based on which key is pressed
-    handleInput(KEYS);
+    handleInput(KEYS, currentMap);
     // Draw Player 1
-    player1.draw(ctx);
+    player.draw(ctx);
     // Draw Player 2
-    player2.draw(ctx);
+    // player2.draw(ctx);
     // Do gameLoop again 
     requestAnimationFrame(gameLoop);
+}
+
+// functions
+// ----------------------------------------------
+function renderMessage(obj, other = true) {
+
+    // skapa en 'container'
+    let div = document.createElement("div");
+    div.classList = "container";
+
+    // skapa ett element för meddelandet
+    let p = document.createElement("p");
+    p.textContent = obj.message;
+    if (other) {
+        p.classList = "others";
+    }
+
+    // skapa ett element för 'user | nickname'
+    let span = document.createElement("span");
+    span.textContent = obj.user;
+    if (other) {
+        span.classList = "other";
+    }
+
+    // skapa ett element för tid
+    let time = document.createElement("time");
+
+    // skapa en tidsstämpel med objektet Date
+    let date = new Date();
+    time.textContent = date.toLocaleTimeString();
+    time.dateTime = date.toISOString();
+
+    div.appendChild(p);
+    div.appendChild(span);
+    div.appendChild(time);
+
+    // lägg till DOM
+    chatHistory.appendChild(div);
+}
+
+
+function handleInput(keys) {
+
+    //Mariam borders
+
+    // const borders = map.borders;
+    // player 1
+    if (keys.arrowUp.isPressed && player.y > 0) {
+        player.move(0, -3);
+    }
+    if (keys.arrowDown.isPressed && (player.y + player.height) < CANVAS_HEIGHT) {
+        player.move(0, 3);
+    }
+    if (keys.arrowLeft.isPressed && player.x > 0) {
+        player.move(-3, 0);
+    }
+    if (keys.arrowRight.isPressed && (player.x + player.width) < CANVAS_WIDTH) {
+        player.move(3, 0);
+    }
 }
 
 window.addEventListener('keydown', (event) => {
@@ -111,21 +212,7 @@ window.addEventListener('keydown', (event) => {
         // player1.move(1, 0);
         KEYS.arrowRight.isPressed = true;
     }
-    // Player 2
-    if (event.key === "a") {
-        // player2y += -1;
-        // player2.move(0, -1);
-        KEYS.a.isPressed = true;
-    } else if (event.key === "b") {
-        // player2.move(0, 1);
-        KEYS.b.isPressed = true;
-    } else if (event.key === "c") {
-        // player2.move(-1, 0);
-        KEYS.c.isPressed = true;
-    } else if (event.key === "d") {
-        // player2.move(1, 0);
-        KEYS.d.isPressed = true;
-    }
+
 })
 
 window.addEventListener('keyup', (event) => {
@@ -145,21 +232,8 @@ window.addEventListener('keyup', (event) => {
         // player1.move(1, 0);
         KEYS.arrowRight.isPressed = false;
     }
-    // Player 2
-    if (event.key === "a") {
-        // player2y += -1;
-        // player2.move(0, -1);
-        KEYS.a.isPressed = false;
-    } else if (event.key === "b") {
-        // player2.move(0, 1);
-        KEYS.b.isPressed = false;
-    } else if (event.key === "c") {
-        // player2.move(-1, 0);
-        KEYS.c.isPressed = false;
-    } else if (event.key === "d") {
-        // player2.move(1, 0);
-        KEYS.d.isPressed = false;
-    }
 })
 
-gameLoop();
+// gameLoop();
+
+

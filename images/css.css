@@ -4,10 +4,36 @@
     box-sizing: border-box;
 }
 
-
-
 canvas {
-
+    border: 5px solid violet;
     background-size: cover;
     background-position: center center;
 }
+
+div#chatHistory {
+    border: 1px dotted lightblue;
+    padding: 4rem;
+    background-color: lightblue;
+    margin-left: 1000px;
+    font-size: x-large
+    ;
+}
+
+p.others {
+    border: 1px solid green;
+    background-color: pink;
+    padding: 0.5rem;
+    box-shadow: 0 0 5px dodgerblue;
+    margin-left: 3rem;
+}
+
+span.other {
+    text-align: right;
+    display: block;
+    font-size: x-large;
+}
+
+.hidden {
+    display: none;
+}
+

@@ -16,7 +16,6 @@ class Map {
             left: borders.left,
             right: borders.right,
             bottom: borders.bottom,
-
         }
     };
 

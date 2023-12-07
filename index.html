@@ -9,12 +9,57 @@
     <title>Canvas</title>
     <style>
         canvas {
-            border: 1px solid black;
+            border: 5px solid violet;
+
         }
+
+        div#chatHistory {
+            border: 1px dotted lightblue;
+            padding: 4rem;
+            background-color: lightblue;
+        }
+
+        p.others {
+            border: 1px solid green;
+            background-color: pink;
+            padding: 0.5rem;
+            box-shadow: 0 0 5px dodgerblue;
+            margin-left: 3rem;
+        }
+
+        span.other {
+            text-align: right;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* canvas {
+            width: 300px;
+            height: 200px;
+            background-color: #999;
+        } */
+
+
     </style>
-    <script type="module" src="map.js" defer></script>
-    <script type="module" src="player.js" defer></script>
-    <script type="module" src="script.js" defer></script>
+
+
+    <input type="text" id="user" placeholder="Ditt namn (3 tecken +)">
+    <button id="setUser">Kliv in i chatten</button>
+
+    <form action="" method="post" id="messageForm" class="hidden">
+        <input type="text" id="message" required autofocus>
+        <input type="submit" value="Sänd">
+    </form>
+    <hr>
+    <div id="chatHistory" class="hidden"></div>
+
+    <script type="module" src="./scripts/chat.js"></script>
+    <script type="module" src="./scripts/map.js" defer></script>
+    <script type="module" src="./scripts/player.js" defer></script>
+    <script type="module" src="./scripts/script.js" defer></script>
 </head>
 
 <body>

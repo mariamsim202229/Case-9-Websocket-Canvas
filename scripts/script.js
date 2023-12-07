@@ -2,35 +2,24 @@ import Player from "./player.js";
 import Map from "./map.js";
 
 //1. get element of canvas
-
 const canvasEl = document.querySelector("#canvas");
 
 //2. get context of canvas
-
 const ctx = canvasEl.getContext("2d")
 
 //canvas dimensions 
 const CANVAS_WIDTH = canvasEl.getBoundingClientRect().width;
 const CANVAS_HEIGHT = canvasEl.getBoundingClientRect().height;
 
-// BG MAP
-//  mapBg = new Image();
-//  mapBg.src = "./images/snow-map.png";
-//  mapWidth = CANVAS_WIDTH;
-//  mapHeight = CANVAS_HEIGHT;
-
-
 const KEYS = {
     arrowUp: { isPressed: false },
     arrowDown: { isPressed: false },
     arrowLeft: { isPressed: false },
     arrowRight: { isPressed: false },
-
     a: { isPressed: false },
     b: { isPressed: false },
     c: { isPressed: false },
     d: { isPressed: false }
-
 }
 
 // Mariam wintermap
@@ -46,9 +35,7 @@ const winterMap = new Map({
     height: CANVAS_HEIGHT,
     player1StartingPosition: { x: 100, y: 200 },
     player2StartingPosition: { x: 200, y: 400 },
-
 }
-
 );
 
 let currentMap = winterMap;

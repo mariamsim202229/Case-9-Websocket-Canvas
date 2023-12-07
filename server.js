@@ -3,7 +3,7 @@ import http from 'http';
 import { WebSocketServer } from 'ws';
 
 const app = express();
-const port = 8082;
+const port = 8081;
 
 app.use(express.static('public'));
 

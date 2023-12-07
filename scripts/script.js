@@ -1,12 +1,16 @@
 import Player from "./player.js";
 import Map from "./map.js";
+
 //1. get element of canvas
 const canvas = document.querySelector("canvas");
+
 //2. get context of canvas
 const ctx = canvas.getContext("2d");
+
 //canvas dimensions 
 const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
 const CANVAS_HEIGHT = canvas.getBoundingClientRect().height;
+
 // DOM elements
 // ----------------------------------------------
 const messageForm = document.querySelector("#messageForm");
@@ -16,15 +20,13 @@ const user = document.querySelector("#user");
 const setUser = document.querySelector("#setUser");
 
 import { MyCanvas } from './MyCanvas.js';
-
 const myCanvas = new MyCanvas(canvas, ctx);
 
-// skapa en websocket i klienten
-const websocket = new WebSocket("ws://localhost:8082");
 
+// skapa en websocket i klienten
+const websocket = new WebSocket("ws://localhost:8081");
 // objektet som skickas mellan klient och server
 let obj = { type: "", user: "", message: "" };
-
 
 // event listeners
 // ----------------------------------------------
@@ -66,78 +68,12 @@ function receiveMessage(event) {
             break;
         case "canvas":
             console.log("params:", obj.params);
-            myCanvas.writeText(obj.message, 50, 50);
+            writeTextOnCanvas(obj.message);
             break;
     }
+    
 }
 
-const KEYS = {
-    arrowUp: { isPressed: false },
-    arrowDown: { isPressed: false },
-    arrowLeft: { isPressed: false },
-    arrowRight: { isPressed: false },
-    a: { isPressed: false },
-    b: { isPressed: false },
-    c: { isPressed: false },
-    d: { isPressed: false }
-}
-
-// Mariam wintermap
-const winterMap = new Map({
-    backgroundImage: "./images/snow-map.png",
-    borders: {
-        top: 125,
-        left: 0,
-        right: 230,
-        bottom: 0,
-    },
-    width: CANVAS_WIDTH,
-    height: CANVAS_HEIGHT,
-    playerStartingPosition: { x: 100, y: 200 },
-}
-);
-
-let currentMap = winterMap;
-
-let player;
-
-function confirmSetUser() {
-    const name = user.value;
-    // kontrollera att det finns ett namn
-    if (name.length > 2) {
-        setUser.classList = "hidden";
-
-        user.setAttribute("disabled", "disabled");
-        messageForm.classList = "";
-        chatHistory.classList = "";
-
-        // Create Player 1
-        player = new Player(name, currentMap.playerStartingPosition.x,
-            currentMap.playerStartingPosition.y,
-            "transparent",
-            "./images/punk_guy_green.png")
-
-        gameLoop();
-    }
-}
-function gameLoop() {
-    // Clear canvas 
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    // ctx.drawImage(mapBg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    currentMap.draw(ctx);
-    // Do movements based on which key is pressed
-    handleInput(KEYS, currentMap);
-    // Draw Player 1
-    player.draw(ctx);
-    // Draw Player 2
-    // player2.draw(ctx);
-    // Do gameLoop again 
-    requestAnimationFrame(gameLoop);
-}
-
-// functions
-// ----------------------------------------------
 function renderMessage(obj, other = true) {
 
     // skapa en 'container'
@@ -174,6 +110,69 @@ function renderMessage(obj, other = true) {
     chatHistory.appendChild(div);
 }
 
+function writeTextOnCanvas(obj) {
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillText(obj.message);
+  }
+
+const KEYS = {
+    arrowUp: { isPressed: false },
+    arrowDown: { isPressed: false },
+    arrowLeft: { isPressed: false },
+    arrowRight: { isPressed: false },
+}
+
+// Mariam wintermap
+const winterMap = new Map({
+    backgroundImage: "./images/snow-map.png",
+    borders: {
+        top: 125,
+        left: 0,
+        right: 230,
+        bottom: 0,
+    },
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+    playerStartingPosition: { x: 100, y: 200 },
+}
+);
+
+let currentMap = winterMap;
+
+let player;
+
+function confirmSetUser() {
+    const name = user.value;
+    // kontrollera att det finns ett namn
+    if (name.length > 2) {
+        setUser.classList = "hidden";
+        user.setAttribute("disabled", "disabled");
+        messageForm.classList = "";
+        chatHistory.classList = "";
+
+        // Create player 
+        player = new Player(name, currentMap.playerStartingPosition.x,
+            currentMap.playerStartingPosition.y,
+            "transparent",
+            "./images/punk_guy_green.png")
+        gameLoop();
+    }
+}
+function gameLoop() {
+    // Clear canvas 
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    currentMap.draw(ctx);
+    // Do movements based on which key is pressed
+    handleInput(KEYS, currentMap);
+    // Draw Player 1
+    player.draw(ctx);
+    ctx.fillText(obj.message, 50, 50);
+    // Do gameLoop again 
+    requestAnimationFrame(gameLoop);
+}
+
+// functions
+// ----------------------------------------------
 
 function handleInput(keys) {
 
@@ -197,39 +196,25 @@ function handleInput(keys) {
 
 window.addEventListener('keydown', (event) => {
     console.log("KeyDown event trigged. key", event.key, "has been pressed");
-    // Player 1
     if (event.key === "ArrowUp") {
-        // player1y += -1;
-        // player1.move(0, -1);
         KEYS.arrowUp.isPressed = true;
     } else if (event.key === "ArrowDown") {
-        // player1.move(0, 1);
         KEYS.arrowDown.isPressed = true;
     } else if (event.key === "ArrowLeft") {
-        // player1.move(-1, 0);
         KEYS.arrowLeft.isPressed = true;
     } else if (event.key === "ArrowRight") {
-        // player1.move(1, 0);
         KEYS.arrowRight.isPressed = true;
     }
-
 })
-
 window.addEventListener('keyup', (event) => {
     console.log("KeyUp event trigged. key", event.key, "has been released");
-    // Player 1
     if (event.key === "ArrowUp") {
-        // player1y += -1;
-        // player1.move(0, -1);
         KEYS.arrowUp.isPressed = false;
     } else if (event.key === "ArrowDown") {
-        // player1.move(0, 1);
         KEYS.arrowDown.isPressed = false;
     } else if (event.key === "ArrowLeft") {
-        // player1.move(-1, 0);
         KEYS.arrowLeft.isPressed = false;
     } else if (event.key === "ArrowRight") {
-        // player1.move(1, 0);
         KEYS.arrowRight.isPressed = false;
     }
 })

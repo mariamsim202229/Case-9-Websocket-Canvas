@@ -1,19 +1,21 @@
 * {
-    padding: 0;
-    margin: 0;
+    padding: 5;
+    margin: 5;
     box-sizing: border-box;
 }
 
 canvas {
-    border: 5px solid violet;
+    border: 5px solid blue;
     background-size: cover;
     background-position: center center;
 }
 
 div#chatHistory {
+
+    display: flex;
     border: 1px dotted lightblue;
     padding: 4rem;
-    background-color: lightblue;
+    background-color: goldenrod;
     margin-left: 1000px;
     font-size: x-large
     ;
@@ -34,6 +36,12 @@ span.other {
 }
 
 .hidden {
-    display: none;
+    display: flex;
+    background-color: coral;
+}
+
+.container {
+
+    background-color: darkgoldenrod;
 }
 

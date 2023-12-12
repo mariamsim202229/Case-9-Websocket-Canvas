@@ -1,15 +1,12 @@
 import Player from "./player.js";
 import Map from "./map.js";
-// import Keyboard from "./Keyboard.js";
-
+import Keyboard from "./Keyboard.js";
 
 //1. get element of canvas
 const canvas = document.querySelector("canvas");
-
 //2. get context of canvas
 const ctx = canvas.getContext("2d");
-
-// const keyboard = new Keyboard();
+const keyboard = new Keyboard();
 //canvas dimensions
 const CANVAS_WIDTH = canvas.getBoundingClientRect().width;
 const CANVAS_HEIGHT = canvas.getBoundingClientRect().height;
@@ -24,6 +21,11 @@ const setUser = document.querySelector("#setUser");
 
 // import { MyCanvas } from './MyCanvas.js';
 // const myCanvas = new MyCanvas(canvas, ctx);
+
+let player;
+let players = [];
+
+
 // skapa en websocket i klienten
 const websocket = new WebSocket("ws://localhost:8081");
 // objektet som skickas mellan klient och server
@@ -75,15 +77,16 @@ function receiveMessage(event) {
             break;
 
         case "movePlayer":
-
             // iteration
             players.forEach(player => {
+                // vilken spelare flyttar sig...
                 if (player.name === obj.user) {
                     // uppdatera position 
                     player.x = obj.params.x;
                     player.y = obj.params.y;
+                    player.color = obj.color;
+                    player.imageSrc = obj.imageSrc
                 }
-
             })
             break;
     }
@@ -129,13 +132,6 @@ function writeTextOnCanvas(obj) {
     ctx.fillText(obj.message);
 }
 
-const KEYS = {
-    arrowUp: { isPressed: false },
-    arrowDown: { isPressed: false },
-    arrowLeft: { isPressed: false },
-    arrowRight: { isPressed: false },
-}
-
 // Mariam wintermap
 const winterMap = new Map({
     backgroundImage: "./snow-map.png",
@@ -150,11 +146,9 @@ const winterMap = new Map({
     playerStartingPosition: { x: 100, y: 200 },
 }
 );
+//  const borders = map.borders;
 
 let currentMap = winterMap;
-
-let player;
-let players = [];
 
 function confirmSetUser() {
     const name = user.value;
@@ -174,7 +168,6 @@ function confirmSetUser() {
         players.push(player);
 
         obj.type = "newPlayer";
-
         obj.user = player.name;
         obj.params = {
             x: currentMap.playerStartingPosition.x,
@@ -188,99 +181,78 @@ function confirmSetUser() {
         gameLoop();
     }
 }
-function gameLoop() {
-    // Clear canvas
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    currentMap.draw(ctx);
-    // Draw Player 1
-    //  player.draw(ctx);
-    players.forEach(player => {
-        player.draw(ctx);
-    });
-    // Do movements based on which key is pressed
-    handleInput(KEYS, currentMap);
-
-    ctx.fillText(obj.message, 50, 50);
-    // Do gameLoop again
-
-
-    requestAnimationFrame(gameLoop);
-}
 
 // functions
 // ----------------------------------------------
 
+function movePlayer() {
+   
+  
+    const activeKey = keyboard.activeKey(player);
+    const speed = 5;
 
-// function movePlayer() {
+    // let x = player.x;
+    // let y = player.y;
 
-//     const activeKey = keyboard.activeKey();
+    switch (activeKey) {
+        case "ArrowUp":
+       player.y = player.y - speed <= 0 ? 0 : player.y - speed;
+       player.frameY = 3;
+       
+            break;
+        case "ArrowRight":
+            player.x = player.x + player.width + speed >= CANVAS_WIDTH ? player.x : player.x + speed;
+            player.frameY = 2;
 
-//     switch (key) {
-//         case "ArrowUp":
-
-//             break;
-//         case "ArrowRight":
-
-//             break;
-//         case "ArrowDown":
-
-//             break;
-//         case "ArrowLeft":
-
-//             break;
-
-//         default:
-//             break;
-//     }
-
-
-
-
-
-
-
-function handleInput(keys) {
-
-    //Mariam borders
-    // const borders = map.borders;
-    // player 1
-    if (keys.arrowUp.isPressed && player.y > 0) {
-        player.move(0, -3);
+            break;
+        case "ArrowDown":
+            player.y = player.y + player.height + speed >= CANVAS_HEIGHT ? player.y : player.y + speed;
+            // player.y += speed;
+            player.frameY = 0;
+            break;
+        case "ArrowLeft":
+            player.x = player.x - speed <= 0 ? 0 : player.x - speed;
+            player.frameY = 1;
+            break;
+        default:
+            break;
     }
-    if (keys.arrowDown.isPressed && (player.y + player.height) < CANVAS_HEIGHT) {
-        player.move(0, 3);
+
+    console.log("y: ", player.y, "x: ", player.x, "right side of player", player.x + player.width)
+
+   
+    // meddela andra via websocket 
+    obj.type = "movePlayer";
+    obj.user = player.name;
+    obj.params = {
+        x: player.x,
+        y: player.y
     }
-    if (keys.arrowLeft.isPressed && player.x > 0) {
-        player.move(-3, 0);
-    }
-    if (keys.arrowRight.isPressed && (player.x + player.width) < CANVAS_WIDTH) {
-        player.move(3, 0);
-    }
+    obj.color = "transparent";
+    obj.imageSrc = "./punk_guy_green.png"
+
+    websocket.send(JSON.stringify(obj));
+
+    console.log ( player.name, player.x, player.y)
 }
+/**
+ *
+ *
+ */
+function gameLoop() {
 
-window.addEventListener('keydown', (event) => {
-    console.log("KeyDown event trigged. key", event.key, "has been pressed");
-    if (event.key === "ArrowUp") {
-        KEYS.arrowUp.isPressed = true;
-    } else if (event.key === "ArrowDown") {
-        KEYS.arrowDown.isPressed = true;
-    } else if (event.key === "ArrowLeft") {
-        KEYS.arrowLeft.isPressed = true;
-    } else if (event.key === "ArrowRight") {
-        KEYS.arrowRight.isPressed = true;
-    }
-})
-window.addEventListener('keyup', (event) => {
-    console.log("KeyUp event trigged. key", event.key, "has been released");
-    if (event.key === "ArrowUp") {
-        KEYS.arrowUp.isPressed = false;
-    } else if (event.key === "ArrowDown") {
-        KEYS.arrowDown.isPressed = false;
-    } else if (event.key === "ArrowLeft") {
-        KEYS.arrowLeft.isPressed = false;
-    } else if (event.key === "ArrowRight") {
-        KEYS.arrowRight.isPressed = false;
-    }
-})
+        // do movements based on keyboard by the function movePlayer
+        movePlayer();
+    // Clear canvas
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    currentMap.draw(ctx);
+   
 
-// gameLoop();
+    // Draw Player 
+    players.forEach(player => {
+        player.draw(ctx);
+    });
+    ctx.fillText(obj.message, 50, 50);
+    // Do gameLoop again
+    requestAnimationFrame(gameLoop);
+}

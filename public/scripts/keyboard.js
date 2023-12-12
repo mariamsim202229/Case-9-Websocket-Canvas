@@ -70,8 +70,8 @@ class Keyboard {
             keyup: this.keyup,
         }
     }
-    activeKey() {
-        let keys = this.status();
+    activeKey(player) {
+        let keys = this.status(player);
         return Object.keys(keys).find(key => keys[key] === true);
     }
 }

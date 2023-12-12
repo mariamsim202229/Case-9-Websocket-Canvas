@@ -48,16 +48,16 @@ wss.on('connection', (ws) => {
             case "canvas":
                 broadcast(wss, obj);
                 break;
+                case "newPlayer":
+                    broadcastExclude(wss, ws, obj);
+                break;
         }
-
     });
-
 });
 
 server.listen(port, (req, res) => {
     console.log(`server running on port ${port}`);
 });
-
 
 // en funktion som skickar till alla klienter
 function broadcast(wss, obj) {
@@ -78,3 +78,5 @@ function broadcastExclude(wss, ws, obj) {
         }
     });
 }
+
+

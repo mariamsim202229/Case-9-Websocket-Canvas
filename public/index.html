@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" type="css" href="./images/css.css" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas chat</title>
+
+    <script type="module" src="./scripts/map.js" defer></script>
+    <script type="module" src="./scripts/player.js" defer></script>
+    <script type="module" src="./scripts/script.js" defer></script>
+</head>
+
+<style>
+    * {
+        padding: 5;
+        margin: 5;
+        box-sizing: border-box;
+    }
+
+    .mycanvas {
+        border: 10px dotted rgb(58, 195, 236);
+        ;
+        background-size: cover;
+        background-position: center center;
+        display: flex;
+        width: fit-content;
+     border-radius: 100px;
+    }
+
+    div#chatHistory {
+
+        border: 10px dotted lightblue;
+        padding: 4px;
+        background-color: rgb(58, 195, 236);
+        font-size: 24px;
+        width: 400px;
+        border-radius: 100px;
+        text-align: center;
+    }
+
+    p.others {
+        border: 1px solid green;
+        background-color: pink;
+        padding: 0.5rem;
+        box-shadow: 0 0 15px dodgerblue;
+        margin-left: 3rem;
+    }
+
+    /* span.other {
+        text-align: right;
+        display: block;
+        font-size: x-large;
+    } */
+
+    .hidden {
+        background-color: coral;
+        display: none;
+    }
+
+    .container {
+        position: relative;
+        padding: 50px;
+    }
+
+    body {
+        background-color: cyan;
+    }
+
+    .chatForm {
+        padding: 20px;
+        background-color: aquamarine;
+        width: fit-content;
+        height: fit-content;
+        position: absolute;
+        margin-left: 500px;
+        font-size: x-large;
+        border: 5px dotted forestgreen;
+        border-radius: 20px;
+    }
+
+    .input {
+        font-size: x-large;
+        border: 2px dotted forestgreen;
+        background-color: rgb(44, 247, 247);
+        border-radius: 20px;
+    }
+
+    .form {
+
+        display: flex;
+    }
+
+    .button {
+        background-color:rosybrown;
+        font-size: x-large;
+        border-radius: 12px;
+    }
+
+    .online {
+
+        border: 1px solid green;
+        background-color: greenyellow;
+    }
+</style>
+
+
+
+<body>
+    <div class="container">
+        <div class="mycanvas">
+            <canvas id="canvas" width="1200" height="640"></canvas>
+            <div id="chatHistory"> </div>
+        </div>
+
+        <hr>
+        <div class="chatForm">
+            <form action="" method="post" id="messageForm">
+                <input type="text" id="user" placeholder="Ditt namn (3 tecken +)" class="input">
+                <button id="setUser" class="button">Anslut till spel</button>
+                <input type="text" id="message" required autofocus class="input">
+                <input type="submit" value="Send" class="button">
+            </form>
+
+    
+      
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

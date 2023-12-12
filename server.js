@@ -7,7 +7,6 @@ const port = 8081;
 
 app.use(express.static('public'));
 
-
 const server = http.createServer(app);
 
 const wss = new WebSocketServer({ noServer: true });
@@ -51,6 +50,9 @@ wss.on('connection', (ws) => {
                 case "newPlayer":
                     broadcastExclude(wss, ws, obj);
                 break;
+                case "movePlayer":
+                    broadcastExclude(wss, ws, obj);
+                    break;
         }
     });
 });

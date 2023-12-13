@@ -25,6 +25,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 
+
 // lyssna på event 'connection'
 wss.on('connection', (ws) => {
     console.log(`Client connected to server, number of clients: ${wss.clients.size}`);
@@ -51,6 +52,7 @@ wss.on('connection', (ws) => {
                     broadcastExclude(wss, ws, obj);
                 break;
                 case "movePlayer":
+                    console.log("receiving movement message",obj )
                     broadcastExclude(wss, ws, obj);
                     break;
         }

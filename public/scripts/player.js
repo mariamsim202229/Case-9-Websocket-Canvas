@@ -31,10 +31,10 @@ class Player {
     }
 
     draw(ctx) {
-        ctx.beginPath();
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(this.x, this.y, this.width, this.height)
-        ctx.fill();
+        // ctx.beginPath();
+        // ctx.fillStyle = "yellow";
+        // ctx.fillRect(this.x, this.y, this.width, this.height)
+        // ctx.fill();
         
         ctx.drawImage(
             this.spriteImage,
@@ -49,10 +49,6 @@ class Player {
         );
     }
 
-    // move(x, y) {
-    //     this.x += x;
-    //     this.y += y;
-    // }
 }
 
 export default Player;

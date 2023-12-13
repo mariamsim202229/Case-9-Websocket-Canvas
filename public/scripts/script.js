@@ -25,7 +25,6 @@ const setUser = document.querySelector("#setUser");
 let player;
 let players = [];
 
-
 // skapa en websocket i klienten
 const websocket = new WebSocket("ws://localhost:8081");
 // objektet som skickas mellan klient och server
@@ -77,15 +76,13 @@ function receiveMessage(event) {
             break;
 
         case "movePlayer":
-            // iteration
+            // iteration 
+            console.log("received message from server to move other player", obj);
+
             players.forEach(player => {
-                // vilken spelare flyttar sig...
-                if (player.name === obj.user) {
-                    // uppdatera position 
+                if (player.name === obj.name) {
                     player.x = obj.params.x;
                     player.y = obj.params.y;
-                    player.color = obj.color;
-                    player.imageSrc = obj.imageSrc
                 }
             })
             break;
@@ -186,8 +183,7 @@ function confirmSetUser() {
 // ----------------------------------------------
 
 function movePlayer() {
-   
-  
+
     const activeKey = keyboard.activeKey(player);
     const speed = 5;
 
@@ -196,9 +192,9 @@ function movePlayer() {
 
     switch (activeKey) {
         case "ArrowUp":
-       player.y = player.y - speed <= 0 ? 0 : player.y - speed;
-       player.frameY = 3;
-       
+            player.y = player.y - speed <= 0 ? 0 : player.y - speed;
+            player.frameY = 3;
+
             break;
         case "ArrowRight":
             player.x = player.x + player.width + speed >= CANVAS_WIDTH ? player.x : player.x + speed;
@@ -220,7 +216,6 @@ function movePlayer() {
 
     console.log("y: ", player.y, "x: ", player.x, "right side of player", player.x + player.width)
 
-   
     // meddela andra via websocket 
     obj.type = "movePlayer";
     obj.user = player.name;
@@ -228,12 +223,14 @@ function movePlayer() {
         x: player.x,
         y: player.y
     }
-    obj.color = "transparent";
-    obj.imageSrc = "./punk_guy_green.png"
+    // obj.color = "transparent";
+    // obj.imageSrc = "./punk_guy_green.png"
+
+    console.log("sending movement to server", (JSON.stringify(obj)));
 
     websocket.send(JSON.stringify(obj));
 
-    console.log ( player.name, player.x, player.y)
+    console.log(player.name, player.x, player.y);
 }
 /**
  *
@@ -241,13 +238,11 @@ function movePlayer() {
  */
 function gameLoop() {
 
-        // do movements based on keyboard by the function movePlayer
-        movePlayer();
+    // do movements based on keyboard by the function movePlayer
+    movePlayer();
     // Clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     currentMap.draw(ctx);
-   
-
     // Draw Player 
     players.forEach(player => {
         player.draw(ctx);
